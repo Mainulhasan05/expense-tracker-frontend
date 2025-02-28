@@ -6,26 +6,34 @@ const ThemeContext = createContext({ theme: "system", setTheme: () => null });
 
 export function ThemeProvider({
   children,
-  defaultTheme = "light",
+  defaultTheme = "system",
   storageKey = "theme",
   ...props
 }) {
-  const [theme, setTheme] = useState(defaultTheme);
+  const [theme, setTheme] = useState(() => {
+    // Initialize theme from localStorage or defaultTheme
+    if (typeof window !== "undefined") {
+      const storedTheme = localStorage.getItem(storageKey);
+      return storedTheme || defaultTheme;
+    }
+    return defaultTheme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
+    let themeToApply = theme;
+
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
+      // Use system theme without updating state
+      themeToApply = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
-      root.classList.add(systemTheme);
-      return;
     }
 
-    root.classList.add(theme);
+    // Apply the theme class to the root element
+    root.classList.add(themeToApply);
   }, [theme]);
 
   const value = {
@@ -45,7 +53,8 @@ export function ThemeProvider({
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (context === undefined)
+  if (context === undefined) {
     throw new Error("useTheme must be used within a ThemeProvider");
+  }
   return context;
 };

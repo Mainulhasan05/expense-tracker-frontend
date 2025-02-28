@@ -4,7 +4,7 @@ import AddTransactionButton from "@/components/transactions/add-transaction-butt
 
 export default function TransactionsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-24">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold">Transactions</h1>
         <AddTransactionButton />
