@@ -18,8 +18,7 @@ export default function LoginCard() {
     console.log(accessToken);
     dispatch(loginWithGoogle({ idToken: accessToken }));
 
-    // dispatch(login({ token: accessToken })); // Store token in Redux
-    // router.push("/dashboard");
+    router.push("/dashboard");
   };
 
   const handleGoogleFailure = (error) => {

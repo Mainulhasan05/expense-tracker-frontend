@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Menu, X, Bell, Sun, Moon, ChevronDown, User } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { fetchProfile } from "@/features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import Image from "next/image";
+import ProfileImage from "./ProfileImage";
 
 export default function DashboardNavbar() {
+  const { user } = useSelector((state) => state.auth);
   const router = useRouter();
+  const dispatch = useDispatch();
   const { theme, setTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -19,6 +25,9 @@ export default function DashboardNavbar() {
     "April 2025",
     "May 2025",
   ];
+  useEffect(() => {
+    dispatch(fetchProfile());
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -110,18 +119,14 @@ export default function DashboardNavbar() {
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
                 <span className="sr-only">Open user menu</span>
-                <div className="relative w-8 h-8 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                  <User className="absolute w-10 h-10 text-gray-400 -left-1" />
-                </div>
+                <ProfileImage user={user} />
               </button>
 
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                   <div className="py-3 px-4 text-sm text-gray-900 dark:text-white">
-                    <div>John Doe</div>
-                    <div className="font-medium truncate">
-                      john.doe@example.com
-                    </div>
+                    <div>{user?.name}</div>
+                    <div className="font-medium truncate">{user?.email}</div>
                   </div>
                   <ul className="py-1 text-sm text-gray-700 dark:text-gray-200">
                     <li>

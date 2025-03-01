@@ -4,6 +4,23 @@ const nextConfig = {
     API_URL: "http://localhost:8000",
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   },
+  images: {
+    domains: ["lh3.googleusercontent.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "img.freepik.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

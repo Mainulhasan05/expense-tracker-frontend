@@ -1,8 +1,17 @@
-import { googleLogin } from "./authAPI";
+import {
+  googleLogin,
+  getProfile,
+  addTransaction,
+  getCategories,
+  addCategory,
+} from "./authAPI";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null,
+  categories: [],
+  transactions: [],
+  tasks: [],
   loading: false,
   error: null,
 };
@@ -13,6 +22,31 @@ export const loginWithGoogle = createAsyncThunk(
     return await googleLogin({ idToken });
   }
 );
+
+export const fetchCategories = createAsyncThunk(
+  "auth/fetchCategories",
+  async () => {
+    return await getCategories();
+  }
+);
+
+export const addNewCategory = createAsyncThunk(
+  "auth/addNewCategory",
+  async (data) => {
+    return await addCategory(data);
+  }
+);
+
+export const addNewTransaction = createAsyncThunk(
+  "auth/addNewTransaction",
+  async (data) => {
+    return await addTransaction(data);
+  }
+);
+
+export const fetchProfile = createAsyncThunk("auth/fetchProfile", async () => {
+  return await getProfile();
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -26,9 +60,45 @@ const authSlice = createSlice({
       })
       .addCase(loginWithGoogle.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload?.user;
       })
       .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(fetchProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchCategories.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories = action.payload;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(addNewCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addNewCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories.push(action.payload);
+      })
+      .addCase(addNewCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

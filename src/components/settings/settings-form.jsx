@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { Moon, Sun } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories, addNewCategory } from "@/features/auth/authSlice";
 
 export default function SettingsForm() {
+  const { categories } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   // Static data for demo
   const [settings, setSettings] = useState({
