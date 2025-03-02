@@ -8,6 +8,7 @@ import { fetchProfile } from "@/features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
 import ProfileImage from "./ProfileImage";
+import Cookies from "js-cookie";
 
 export default function DashboardNavbar() {
   const { user } = useSelector((state) => state.auth);
@@ -29,6 +30,11 @@ export default function DashboardNavbar() {
     dispatch(fetchProfile());
   }, []);
 
+  const handleLogout = () => {
+    Cookies.remove("finance-tracker-token");
+    router.push("/");
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     // Add a class to the body to prevent scrolling when sidebar is open
@@ -37,10 +43,6 @@ export default function DashboardNavbar() {
     // Dispatch a custom event that the sidebar can listen to
     const event = new CustomEvent("toggle-sidebar", { detail: !isSidebarOpen });
     window.dispatchEvent(event);
-  };
-
-  const handleLogout = () => {
-    router.push("/");
   };
 
   return (

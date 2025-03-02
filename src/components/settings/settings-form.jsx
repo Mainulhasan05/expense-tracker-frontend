@@ -193,9 +193,9 @@ export default function SettingsForm() {
 
           <div className="space-y-4">
             <div className="flex flex-col space-y-2">
-              {settings.customCategories.map((category) => (
+              {categories?.map((category) => (
                 <div
-                  key={category.id}
+                  key={category._id}
                   className="flex items-center justify-between p-2 bg-gray-50 rounded-md dark:bg-gray-700"
                 >
                   <div className="flex items-center">
@@ -212,7 +212,7 @@ export default function SettingsForm() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => deleteCategory(category.id)}
+                    onClick={() => deleteCategory(category._id)}
                     className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Delete

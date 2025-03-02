@@ -39,10 +39,10 @@ export default function LoginCard() {
 
         <div className="flex justify-center">
           <Image
-            src="/placeholder.svg?height=100&width=100"
+            src="/images/logo.png"
             alt="Finance Logo"
-            width={100}
-            height={100}
+            width={150}
+            height={150}
             className="rounded-full"
           />
         </div>
