@@ -101,6 +101,18 @@ const authSlice = createSlice({
       .addCase(addNewCategory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(addNewTransaction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addNewTransaction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions.push(action.payload);
+      })
+      .addCase(addNewTransaction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });

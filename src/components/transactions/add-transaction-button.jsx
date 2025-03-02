@@ -1,26 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCategories, addNewTransaction } from "@/features/auth/authSlice";
 
 export default function AddTransactionButton() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useDispatch();
 
-  const categories = {
-    income: ["Salary", "Freelance", "Investment", "Gift", "Other"],
-    expense: [
-      "Housing",
-      "Food",
-      "Transportation",
-      "Utilities",
-      "Entertainment",
-      "Healthcare",
-      "Personal",
-      "Education",
-      "Debt",
-      "Other",
-    ],
-  };
+  const { categories } = useSelector((state) => state.auth);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     type: "expense",
@@ -35,16 +25,24 @@ export default function AddTransactionButton() {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      // Reset category when type changes
-      ...(name === "type" ? { category: "" } : {}),
+      ...(name === "type" ? { category: "" } : {}), // Reset category when type changes
     }));
   };
 
+  useEffect(() => {
+    dispatch(fetchCategories());
+    console.log("Categories:", categories);
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically save the transaction
-    console.log("Transaction data:", formData);
+
+    // Dispatch addNewTransaction action with formData
+    dispatch(addNewTransaction(formData));
+
+    console.log("Transaction data submitted:", formData);
     setIsModalOpen(false);
+
     // Reset form
     setFormData({
       type: "expense",
@@ -65,7 +63,6 @@ export default function AddTransactionButton() {
         Add Transaction
       </button>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className="relative w-full max-w-md bg-white rounded-lg shadow dark:bg-gray-800">
@@ -133,14 +130,24 @@ export default function AddTransactionButton() {
                     value={formData.category}
                     onChange={handleChange}
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                   >
                     <option value="">Select a category</option>
-                    {categories[formData.type].map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
+                    {/* use filter to show only categories of selected type */}
+                    {categories &&
+                      categories
+                        ?.filter((cat) => cat.type === formData.type)
+                        .map((cat) => (
+                          <option key={cat.name} value={cat.name}>
+                            {cat.name}
+                          </option>
+                        ))}
+                    {/* {categories &&
+                      categories?.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))} */}
                   </select>
                 </div>
 
@@ -151,25 +158,15 @@ export default function AddTransactionButton() {
                   >
                     Amount
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        $
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      id="amount"
-                      name="amount"
-                      value={formData.amount}
-                      onChange={handleChange}
-                      required
-                      min="0.01"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleChange}
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                  />
                 </div>
 
                 <div>
@@ -186,7 +183,7 @@ export default function AddTransactionButton() {
                     value={formData.date}
                     onChange={handleChange}
                     required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                   />
                 </div>
 
@@ -202,28 +199,17 @@ export default function AddTransactionButton() {
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    rows="2"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Transaction description..."
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                   ></textarea>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="py-2.5 px-5 text-sm font-medium text-white focus:outline-none bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                  Add Transaction
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                Add Transaction
+              </button>
             </form>
           </div>
         </div>
