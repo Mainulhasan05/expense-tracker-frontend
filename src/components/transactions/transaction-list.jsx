@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Calendar, ArrowDown, ArrowUp } from "lucide-react";
 import Pagination from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,30 +14,39 @@ export default function TransactionList() {
   const { transactions } = useSelector((state) => state.auth);
   const { activeMonth } = useSelector((state) => state.date);
 
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     if (activeMonth) {
       dispatch(fetchTransactions({ activeMonth, currentPage: 1 }));
+      setCurrentPage(1);
     }
-  }, [activeMonth]);
+  }, [activeMonth, dispatch]);
 
-  const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
     if (activeMonth) {
       dispatch(fetchTransactions({ activeMonth, currentPage }));
     }
-  }, [currentPage]);
+  }, [currentPage, activeMonth, dispatch]);
 
   const handleDeleteTransaction = (id) => {
     dispatch(deleteTransactionItem(id));
   };
 
+  // Format currency
+  const formatCurrency = (amount) => {
+    return `$${amount.toFixed(2)}`;
+  };
+
   return (
-    <div className="space-y-4 p-4 w-full overflow-x-auto">
-      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+    <div className="space-y-4">
+      {/* Desktop view - Table */}
+      <div className="hidden md:block bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
+                <th className="px-4 py-3">#</th>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Category</th>
                 <th className="px-4 py-3">Description</th>
@@ -50,18 +59,19 @@ export default function TransactionList() {
               {transactions?.transactions?.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
                   >
                     No transactions found
                   </td>
                 </tr>
               ) : (
-                transactions?.transactions?.map((transaction) => (
+                transactions?.transactions?.map((transaction, index) => (
                   <tr
                     key={transaction._id}
                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
+                    <td className="px-4 py-3">{index + 1}</td>
                     <td className="px-4 py-3">
                       {new Date(transaction.date).toLocaleDateString()}
                     </td>
@@ -86,8 +96,8 @@ export default function TransactionList() {
                           : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      {transaction.type === "income" ? "+" : "-"}$
-                      {transaction.amount.toFixed(2)}
+                      {transaction.type === "income" ? "+" : "-"}
+                      {formatCurrency(transaction.amount)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button
@@ -104,11 +114,90 @@ export default function TransactionList() {
           </table>
         </div>
       </div>
-      <Pagination
-        currentPage={transactions?.currentPage || 1}
-        totalPages={transactions?.totalPages || 1}
-        onPageChange={setCurrentPage}
-      />
+
+      {/* Mobile view - Card list */}
+      <div className="md:hidden space-y-4">
+        {transactions?.transactions?.length === 0 ? (
+          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center text-gray-500 dark:text-gray-400">
+            No transactions found
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {transactions?.transactions?.map((transaction, index) => (
+              <div
+                key={transaction._id}
+                className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">
+                      {transaction.description}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {transaction.category}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteTransaction(transaction._id)}
+                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+
+                <div className="flex justify-between items-center mt-3">
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    {new Date(transaction.date).toLocaleDateString()}
+                  </div>
+
+                  <div className="flex items-center">
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full mr-2 ${
+                        transaction.type === "income"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                      }`}
+                    >
+                      {transaction.type === "income" ? (
+                        <span className="flex items-center">
+                          <ArrowUp className="w-3 h-3 mr-1" />
+                          Income
+                        </span>
+                      ) : (
+                        <span className="flex items-center">
+                          <ArrowDown className="w-3 h-3 mr-1" />
+                          Expense
+                        </span>
+                      )}
+                    </span>
+
+                    <span
+                      className={`font-medium ${
+                        transaction.type === "income"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {transaction.type === "income" ? "+" : "-"}
+                      {formatCurrency(transaction.amount)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {transactions?.totalPages > 1 && (
+        <Pagination
+          currentPage={transactions?.currentPage || 1}
+          totalPages={transactions?.totalPages || 1}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

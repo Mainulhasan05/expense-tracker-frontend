@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -9,25 +9,31 @@ import {
   CheckSquare,
   Settings,
   Users,
-  // categories icon
+  LogOut,
 } from "lucide-react";
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const sidebarRef = useRef(null);
 
-  // Listen for toggle-sidebar event from navbar
   useEffect(() => {
     const handleToggleSidebar = (event) => {
       setIsOpen(event.detail);
     };
 
-    window.addEventListener("toggle-sidebar", handleToggleSidebar);
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
 
-    // On larger screens, sidebar is always open
+    window.addEventListener("toggle-sidebar", handleToggleSidebar);
+    document.addEventListener("mousedown", handleClickOutside);
+
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        setIsOpen(false); // Reset mobile sidebar state
+        setIsOpen(false);
       }
     };
 
@@ -35,6 +41,7 @@ export default function DashboardSidebar() {
 
     return () => {
       window.removeEventListener("toggle-sidebar", handleToggleSidebar);
+      document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("resize", handleResize);
     };
   }, []);
@@ -60,6 +67,14 @@ export default function DashboardSidebar() {
   // Static user role for demo
   const userRole = "admin";
 
+  const handleLogout = () => {
+    // Implement logout logic here
+    console.log("Logging out...");
+    // For example:
+    // Cookies.remove("finance-tracker-token");
+    // router.push("/");
+  };
+
   return (
     <>
       {/* Mobile sidebar backdrop */}
@@ -72,12 +87,13 @@ export default function DashboardSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:translate-x-0 ${
+        ref={sidebarRef}
+        className={`fixed top-0 left-0 z-50 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="h-full px-3 pb-4 overflow-y-auto">
-          <ul className="space-y-2 font-medium">
+        <div className="h-full px-3 pb-4 overflow-y-auto flex flex-col">
+          <ul className="space-y-2 font-medium flex-grow">
             {navItems.map((item) => {
               if (item.admin && userRole !== "admin") return null;
 
@@ -90,6 +106,7 @@ export default function DashboardSidebar() {
                         ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200"
                         : "text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                     }`}
+                    onClick={() => setIsOpen(false)}
                   >
                     <item.icon
                       className={`w-5 h-5 transition duration-75 ${
@@ -104,6 +121,13 @@ export default function DashboardSidebar() {
               );
             })}
           </ul>
+          <button
+            onClick={handleLogout}
+            className="flex items-center p-2 mt-auto text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          >
+            <LogOut className="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" />
+            <span className="ml-3">Logout</span>
+          </button>
         </div>
       </aside>
     </>
