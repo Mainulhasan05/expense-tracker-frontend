@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, DollarSign, CheckSquare, Settings, Users } from "lucide-react";
+import {
+  Home,
+  DollarSign,
+  CheckSquare,
+  Settings,
+  Users,
+  // categories icon
+} from "lucide-react";
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
@@ -40,14 +47,14 @@ export default function DashboardSidebar() {
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Transactions", href: "/dashboard/transactions", icon: DollarSign },
     { name: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: "Categories", href: "/dashboard/settings", icon: Settings },
     // Admin only
-    {
-      name: "User Management",
-      href: "/dashboard/users",
-      icon: Users,
-      admin: true,
-    },
+    // {
+    //   name: "User Management",
+    //   href: "/dashboard/users",
+    //   icon: Users,
+    //   admin: true,
+    // },
   ];
 
   // Static user role for demo
@@ -72,7 +79,6 @@ export default function DashboardSidebar() {
         <div className="h-full px-3 pb-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
             {navItems.map((item) => {
-              // Skip admin-only items for non-admin users
               if (item.admin && userRole !== "admin") return null;
 
               return (

@@ -28,6 +28,12 @@ export async function addCategory(data) {
   return response.data;
 }
 
+// /api/categories/:id
+export async function deleteCategory(id) {
+  const response = await axiosInstance.delete(`/api/categories/${id}`);
+  return response.data;
+}
+
 // /api/transactions/add
 export async function addTransaction(data) {
   const response = await axiosInstance.post("/api/transactions/add", data);

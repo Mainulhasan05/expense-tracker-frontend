@@ -107,7 +107,7 @@ export default function Pagination({
 
         <button
           onClick={() =>
-            currentPage < totalPages && onPageChange(currentPage + 1)
+            currentPage < totalPages && onPageChange(parseInt(currentPage) + 1)
           }
           disabled={currentPage === totalPages}
           className="relative inline-flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:pointer-events-none dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-700"
