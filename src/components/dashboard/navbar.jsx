@@ -6,29 +6,38 @@ import { Menu, X, Bell, Sun, Moon, ChevronDown, User } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { fetchProfile } from "@/features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import Image from "next/image";
-import ProfileImage from "./ProfileImage";
 import Cookies from "js-cookie";
+import dayjs from "dayjs";
+import ProfileImage from "./ProfileImage";
+import { setActiveMonth } from "@/features/date/dateSlice";
 
 export default function DashboardNavbar() {
   const { user } = useSelector((state) => state.auth);
+  const { activeMonth } = useSelector((state) => state.date);
   const router = useRouter();
   const dispatch = useDispatch();
   const { theme, setTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState("March 2025");
+  const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
 
-  const months = [
-    "January 2025",
-    "February 2025",
-    "March 2025",
-    "April 2025",
-    "May 2025",
-  ];
+  const handleMonthChange = (month) => {
+    dispatch(setActiveMonth(month));
+    Cookies.set("activeMonth", month, { expires: 30 });
+    setIsMonthDropdownOpen(false); // Close dropdown after selection
+  };
+
+  // Generate last 6 months list dynamically
+  const months = Array.from({ length: 6 }, (_, i) =>
+    dayjs().subtract(i, "month").format("MMMM YYYY")
+  ).reverse();
+
   useEffect(() => {
     dispatch(fetchProfile());
-  }, []);
+    const storedMonth = Cookies.get("activeMonth");
+    const defaultMonth = storedMonth || months[months.length - 1]; // Latest month by default
+    dispatch(setActiveMonth(defaultMonth));
+  }, [dispatch]);
 
   const handleLogout = () => {
     Cookies.remove("finance-tracker-token");
@@ -65,37 +74,29 @@ export default function DashboardNavbar() {
 
           <div className="flex items-center gap-3">
             {/* Month Selector */}
+            {/* Month Selector */}
             <div className="relative">
               <button
-                className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                onClick={() =>
-                  document
-                    .getElementById("month-dropdown")
-                    .classList.toggle("hidden")
-                }
+                className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 "
+                onClick={() => setIsMonthDropdownOpen(!isMonthDropdownOpen)}
               >
-                {currentMonth}
+                {activeMonth}
                 <ChevronDown size={16} className="ml-1" />
               </button>
-              <div
-                id="month-dropdown"
-                className="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10"
-              >
-                {months.map((month) => (
-                  <button
-                    key={month}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    onClick={() => {
-                      setCurrentMonth(month);
-                      document
-                        .getElementById("month-dropdown")
-                        .classList.add("hidden");
-                    }}
-                  >
-                    {month}
-                  </button>
-                ))}
-              </div>
+
+              {isMonthDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg">
+                  {months.map((month) => (
+                    <button
+                      key={month}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                      onClick={() => handleMonthChange(month)}
+                    >
+                      {month}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Theme Toggle */}

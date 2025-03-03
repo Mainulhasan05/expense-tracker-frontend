@@ -33,3 +33,19 @@ export async function addTransaction(data) {
   const response = await axiosInstance.post("/api/transactions/add", data);
   return response.data;
 }
+
+// /api/transactions/:month
+export async function getTransactions(data) {
+  console.log(data);
+  const { activeMonth, currentPage } = data;
+  const response = await axiosInstance.get(
+    `/api/transactions/${activeMonth}?page=${currentPage}`
+  );
+  return response.data;
+}
+
+// /api/transactions/:id
+export async function deleteTransaction(id) {
+  const response = await axiosInstance.delete(`/api/transactions/${id}`);
+  return response.data;
+}

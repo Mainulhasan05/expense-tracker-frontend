@@ -4,6 +4,8 @@ import {
   addTransaction,
   getCategories,
   addCategory,
+  getTransactions,
+  deleteTransaction,
 } from "./authAPI";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
@@ -41,6 +43,20 @@ export const addNewTransaction = createAsyncThunk(
   "auth/addNewTransaction",
   async (data) => {
     return await addTransaction(data);
+  }
+);
+
+export const fetchTransactions = createAsyncThunk(
+  "auth/fetchTransactions",
+  async (data) => {
+    return await getTransactions(data);
+  }
+);
+
+export const deleteTransactionItem = createAsyncThunk(
+  "auth/deleteTransactionItem",
+  async (data) => {
+    return await deleteTransaction(data);
   }
 );
 
@@ -111,6 +127,32 @@ const authSlice = createSlice({
         state.transactions.push(action.payload);
       })
       .addCase(addNewTransaction.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchTransactions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions = action.payload;
+      })
+      .addCase(fetchTransactions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(deleteTransactionItem.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteTransactionItem.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions = state.transactions.filter(
+          (item) => item._id !== action.payload._id
+        );
+      })
+      .addCase(deleteTransactionItem.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });
