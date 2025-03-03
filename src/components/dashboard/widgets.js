@@ -1,10 +1,23 @@
+"use client";
+
+import { fetchDashboardData } from "@/features/dashboard/dashboardSlice";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 export default function DashboardWidgets() {
+  const { dashboard } = useSelector((state) => state.dashboard);
+  const { activeMonth } = useSelector((state) => state.date);
+  const dispatch = useDispatch();
   // Static data for demo
   const financialData = {
     income: 5250.75,
     expenses: 3120.45,
     netBalance: 5250.75 - 3120.45,
   };
+
+  useEffect(() => {
+    dispatch(fetchDashboardData(activeMonth));
+  }, [dispatch, activeMonth]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -30,7 +43,7 @@ export default function DashboardWidgets() {
               Total Income
             </h3>
             <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white">
-              ${financialData.income.toFixed(2)}
+              {/* ${financialData.income.toFixed(2)} */}${dashboard?.income}
             </span>
           </div>
         </div>
@@ -58,7 +71,7 @@ export default function DashboardWidgets() {
               Total Expenses
             </h3>
             <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white">
-              ${financialData.expenses.toFixed(2)}
+              {/* ${financialData.expenses.toFixed(2)} */}${dashboard?.expense}
             </span>
           </div>
         </div>
@@ -74,7 +87,7 @@ export default function DashboardWidgets() {
                 : "bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200"
             }`}
           >
-            {financialData.netBalance >= 0 ? (
+            {dashboard?.balance >= 0 ? (
               <span className="text-xl">🟢</span>
             ) : (
               <span className="text-xl">🔴</span>
@@ -86,12 +99,13 @@ export default function DashboardWidgets() {
             </h3>
             <span
               className={`text-2xl font-bold leading-none ${
-                financialData.netBalance >= 0
+                dashboard?.balance >= 0
                   ? "text-green-600 dark:text-green-400"
                   : "text-red-600 dark:text-red-400"
               }`}
             >
-              ${financialData.netBalance.toFixed(2)}
+              {/* ${financialData.netBalance.toFixed(2)} */}$
+              {dashboard?.balance}
             </span>
           </div>
         </div>

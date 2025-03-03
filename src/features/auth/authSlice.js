@@ -156,8 +156,9 @@ const authSlice = createSlice({
       })
       .addCase(deleteTransactionItem.fulfilled, (state, action) => {
         state.loading = false;
+        console.log(action.payload?.transaction._id);
         state.transactions = state.transactions.filter(
-          (item) => item._id !== action.payload._id
+          (item) => item._id !== action.payload?.transaction._id
         );
       })
       .addCase(deleteTransactionItem.rejected, (state, action) => {

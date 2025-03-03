@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import ProfileImage from "./ProfileImage";
 import { setActiveMonth } from "@/features/date/dateSlice";
+import Link from "next/link";
 
 export default function DashboardNavbar() {
   const { user } = useSelector((state) => state.auth);
@@ -67,9 +68,11 @@ export default function DashboardNavbar() {
               <span className="sr-only">Open sidebar</span>
               {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white ml-2 md:ml-0">
-              Finance Tracker
-            </span>
+            <Link href={"/dashboard"}>
+              <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white ml-2 md:ml-0">
+                Finance Tracker
+              </span>
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">

@@ -147,14 +147,14 @@ export default function SettingsForm() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end">
+        {/* <div className="mt-6 flex justify-end">
           <button
             type="submit"
             className="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             Save Settings
           </button>
-        </div>
+        </div> */}
       </form>
     </div>
   );

@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { fetchMonthlyTrends } from "@/features/dashboard/dashboardSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   PieChart,
   Pie,
@@ -16,14 +19,24 @@ import {
 } from "recharts";
 
 export default function FinancialCharts() {
+  const { monthlyTrends, dashboard } = useSelector((state) => state.dashboard);
+
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("pie");
 
-  // Static data for demo
-  const pieData = [
-    { name: "Income", value: 5250.75, color: "#10B981" },
-    { name: "Expenses", value: 3120.45, color: "#EF4444" },
-  ];
+  useEffect(() => {
+    dispatch(fetchMonthlyTrends());
+  }, []);
 
+  // Static data for demo
+  // const pieData = [
+  //   { name: "Income", value: 5250.75, color: "#10B981" },
+  //   { name: "Expenses", value: 3120.45, color: "#EF4444" },
+  // ];
+  const pieData = [
+    { name: "Income", value: dashboard?.income || 0, color: "#10B981" },
+    { name: "Expenses", value: dashboard?.expense || 0, color: "#EF4444" },
+  ];
   const barData = [
     { name: "Jan", income: 4200, expenses: 2800 },
     { name: "Feb", income: 4800, expenses: 3100 },
@@ -91,7 +104,7 @@ export default function FinancialCharts() {
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={barData}
+              data={monthlyTrends}
               margin={{
                 top: 20,
                 right: 30,

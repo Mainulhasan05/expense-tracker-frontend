@@ -1,42 +1,17 @@
+"use client";
+import { fetchRecentTransactions } from "@/features/dashboard/dashboardSlice";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 export default function RecentTransactions() {
-  // Static data for demo
-  const transactions = [
-    {
-      id: 1,
-      type: "income",
-      category: "Salary",
-      amount: 3200,
-      date: "2025-03-15",
-    },
-    {
-      id: 2,
-      type: "expense",
-      category: "Rent",
-      amount: 1200,
-      date: "2025-03-10",
-    },
-    {
-      id: 3,
-      type: "expense",
-      category: "Groceries",
-      amount: 150.45,
-      date: "2025-03-08",
-    },
-    {
-      id: 4,
-      type: "income",
-      category: "Freelance",
-      amount: 850,
-      date: "2025-03-05",
-    },
-    {
-      id: 5,
-      type: "expense",
-      category: "Utilities",
-      amount: 120,
-      date: "2025-03-03",
-    },
-  ];
+  const { recentTransactions } = useSelector((state) => state.dashboard);
+  const { activeMonth } = useSelector((state) => state.date);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (activeMonth) {
+      dispatch(fetchRecentTransactions({ activeMonth }));
+    }
+  }, [dispatch, activeMonth]);
 
   return (
     <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -54,7 +29,7 @@ export default function RecentTransactions() {
 
       <div className="flow-root">
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-          {transactions.map((transaction) => (
+          {recentTransactions.map((transaction) => (
             <li key={transaction.id} className="py-3 sm:py-4">
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">

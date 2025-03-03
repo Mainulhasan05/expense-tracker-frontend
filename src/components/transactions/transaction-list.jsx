@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import Pagination from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTransactions } from "@/features/auth/authSlice";
+import {
+  fetchTransactions,
+  deleteTransactionItem,
+} from "@/features/auth/authSlice";
 
 export default function TransactionList() {
   const dispatch = useDispatch();
@@ -25,8 +28,7 @@ export default function TransactionList() {
   }, [currentPage]);
 
   const handleDeleteTransaction = (id) => {
-    console.log("Deleting transaction:", id);
-    // Add your delete logic here
+    dispatch(deleteTransactionItem(id));
   };
 
   return (
