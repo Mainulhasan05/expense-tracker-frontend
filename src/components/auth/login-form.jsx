@@ -15,10 +15,12 @@ export default function LoginCard() {
   const handleGoogleSuccess = async (credentialResponse) => {
     setIsLoading(true);
     const accessToken = credentialResponse.credential;
-    console.log(accessToken);
-    dispatch(loginWithGoogle({ idToken: accessToken }));
 
-    router.push("/dashboard");
+    await dispatch(loginWithGoogle({ idToken: accessToken }));
+
+    // router.push("/dashboard");
+    // refresh the page
+    window.location.reload();
   };
 
   const handleGoogleFailure = (error) => {

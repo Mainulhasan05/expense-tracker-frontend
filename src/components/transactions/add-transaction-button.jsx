@@ -40,7 +40,6 @@ export default function AddTransactionButton() {
     // Dispatch addNewTransaction action with formData
     dispatch(addNewTransaction(formData));
 
-    console.log("Transaction data submitted:", formData);
     setIsModalOpen(false);
 
     // Reset form

@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Menu, X, Bell, Sun, Moon, ChevronDown } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
@@ -29,10 +28,12 @@ export default function DashboardNavbar() {
   const profileRef = useRef(null);
   const monthDropdownRef = useRef(null);
 
-  // Generate last 6 months list dynamically
-  const months = Array.from({ length: 6 }, (_, i) =>
-    dayjs().subtract(i, "month").format("MMMM YYYY")
-  ).reverse();
+  // Memoize the months array
+  const months = useMemo(() => {
+    return Array.from({ length: 6 }, (_, i) =>
+      dayjs().subtract(i, "month").format("MMMM YYYY")
+    ).reverse();
+  }, []);
 
   // Handle month selection
   const handleMonthChange = (month) => {
@@ -43,11 +44,12 @@ export default function DashboardNavbar() {
 
   // Initial setup
   useEffect(() => {
+    console.log("fetchProfile called");
     dispatch(fetchProfile());
     const storedMonth = Cookies.get("activeMonth");
     const defaultMonth = storedMonth || months[months.length - 1]; // Latest month by default
     dispatch(setActiveMonth(defaultMonth));
-  }, [dispatch, months]);
+  }, [dispatch]); // Removed `months` from dependencies
 
   // Close sidebar on page navigation
   useEffect(() => {
