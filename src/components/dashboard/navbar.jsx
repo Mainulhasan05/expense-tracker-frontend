@@ -44,7 +44,6 @@ export default function DashboardNavbar() {
 
   // Initial setup
   useEffect(() => {
-    console.log("fetchProfile called");
     dispatch(fetchProfile());
     const storedMonth = Cookies.get("activeMonth");
     const defaultMonth = storedMonth || months[months.length - 1]; // Latest month by default

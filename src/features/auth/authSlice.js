@@ -132,7 +132,7 @@ const authSlice = createSlice({
       })
       .addCase(addNewTransaction.fulfilled, (state, action) => {
         state.loading = false;
-        state.transactions.push(action.payload);
+        state.transactions.transactions?.push(action.payload);
       })
       .addCase(addNewTransaction.rejected, (state, action) => {
         state.loading = false;
@@ -156,10 +156,10 @@ const authSlice = createSlice({
       })
       .addCase(deleteTransactionItem.fulfilled, (state, action) => {
         state.loading = false;
-        console.log(action.payload?.transaction._id);
-        state.transactions = state.transactions.filter(
-          (item) => item._id !== action.payload?.transaction._id
-        );
+        state.transactions.transactions =
+          state.transactions?.transactions?.filter(
+            (item) => item._id !== action.payload?.transaction._id
+          );
       })
       .addCase(deleteTransactionItem.rejected, (state, action) => {
         state.loading = false;
