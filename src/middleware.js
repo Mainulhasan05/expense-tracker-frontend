@@ -12,7 +12,7 @@ export function middleware(request) {
 
   // If the user is trying to access any dashboard route but doesn't have a token, redirect to login
   if (request.nextUrl.pathname.startsWith("/dashboard") && !token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
@@ -20,5 +20,5 @@ export function middleware(request) {
 
 // Specify the paths the middleware should run on
 export const config = {
-  matcher: ["/", "/dashboard/:path*"],
+  matcher: ["/", "/login", "/dashboard/:path*"],
 };
