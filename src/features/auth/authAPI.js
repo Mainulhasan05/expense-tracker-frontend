@@ -6,7 +6,9 @@ export async function googleLogin({ idToken }) {
   const response = await axiosInstance.post("/api/auth/google-login", {
     idToken,
   });
-  Cookies.set("finance-tracker-token", response.data.token);
+  Cookies.set("finance-tracker-token", response.data.token, {
+    expires: 7,
+  });
   return response.data;
 }
 
