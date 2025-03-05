@@ -7,6 +7,7 @@ import {
   getTransactions,
   deleteTransaction,
   deleteCategory,
+  searchTransactions,
 } from "./authAPI";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
@@ -51,6 +52,13 @@ export const fetchTransactions = createAsyncThunk(
   "auth/fetchTransactions",
   async (data) => {
     return await getTransactions(data);
+  }
+);
+
+export const searchTransaction = createAsyncThunk(
+  "auth/searchTransaction",
+  async (data) => {
+    return await searchTransactions(data);
   }
 );
 
@@ -176,6 +184,18 @@ const authSlice = createSlice({
         );
       })
       .addCase(deleteCategoryItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(searchTransaction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(searchTransaction.fulfilled, (state, action) => {
+        state.loading = false;
+        state.transactions = action.payload;
+      })
+      .addCase(searchTransaction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

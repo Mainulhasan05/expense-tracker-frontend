@@ -1,11 +1,13 @@
 "use client";
 import { fetchRecentTransactions } from "@/features/dashboard/dashboardSlice";
+import Link from "next/link";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function RecentTransactions() {
   const { recentTransactions } = useSelector((state) => state.dashboard);
   const { activeMonth } = useSelector((state) => state.date);
+  const router = useRouter;
   const dispatch = useDispatch();
   useEffect(() => {
     if (activeMonth) {
@@ -19,12 +21,12 @@ export default function RecentTransactions() {
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
           Recent Transactions
         </h2>
-        <a
+        <Link
           href="/dashboard/transactions"
           className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500"
         >
           View all
-        </a>
+        </Link>
       </div>
 
       <div className="flow-root">

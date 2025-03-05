@@ -44,11 +44,18 @@ export async function addTransaction(data) {
 
 // /api/transactions/:month
 export async function getTransactions(data) {
-  console.log(data);
   const { activeMonth, currentPage } = data;
   const response = await axiosInstance.get(
     `/api/transactions/${activeMonth}?page=${currentPage}`
   );
+  return response.data;
+}
+
+// /api/transactions/search   ?search, category, type, startDate, endDate, page = 1
+export async function searchTransactions(data) {
+  const response = await axiosInstance.get("/api/transactions/search", {
+    params: data,
+  });
   return response.data;
 }
 
