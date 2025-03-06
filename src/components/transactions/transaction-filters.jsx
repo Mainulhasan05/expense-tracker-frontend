@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { searchTransaction } from "@/features/auth/authSlice";
 
 export default function TransactionFilters() {
+  const { categories } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [showFilters, setShowFilters] = useState(false);
   const [search, setSearch] = useState("");
@@ -14,6 +15,33 @@ export default function TransactionFilters() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    // Get the current date
+    const currentDate = new Date();
+
+    // Get the first day of the current month
+    const firstDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+
+    // Get the last day of the current month
+    const lastDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    );
+
+    // Format the dates to YYYY-MM-DD (ISO format)
+    const formattedStartDate = firstDayOfMonth.toISOString().split("T")[0];
+    const formattedEndDate = lastDayOfMonth.toISOString().split("T")[0];
+
+    // Set the default start and end dates
+    setStartDate(formattedStartDate);
+    setEndDate(formattedEndDate);
+  }, []);
 
   const handleApplyFilters = () => {
     dispatch(
@@ -32,16 +60,30 @@ export default function TransactionFilters() {
     setSearch("");
     setCategory("");
     setType("");
-    setStartDate("");
-    setEndDate("");
     setPage(1);
+    // Reset dates to the first and last day of the current month
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    const lastDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    );
+    const formattedStartDate = firstDayOfMonth.toISOString().split("T")[0];
+    const formattedEndDate = lastDayOfMonth.toISOString().split("T")[0];
+    setStartDate(formattedStartDate);
+    setEndDate(formattedEndDate);
     dispatch(
       searchTransaction({
         search: "",
         category: "",
         type: "",
-        startDate: "",
-        endDate: "",
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
         page: 1,
       })
     );
@@ -100,13 +142,11 @@ export default function TransactionFilters() {
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
                 <option value="">All Categories</option>
-                <option value="salary">Salary</option>
-                <option value="freelance">Freelance</option>
-                <option value="rent">Rent</option>
-                <option value="groceries">Groceries</option>
-                <option value="utilities">Utilities</option>
-                <option value="dining">Dining</option>
-                <option value="transportation">Transportation</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
             </div>
 

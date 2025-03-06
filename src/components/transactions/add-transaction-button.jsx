@@ -31,7 +31,6 @@ export default function AddTransactionButton() {
 
   useEffect(() => {
     dispatch(fetchCategories());
-    console.log("Categories:", categories);
   }, []);
 
   const handleSubmit = (e) => {

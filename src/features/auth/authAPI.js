@@ -53,6 +53,7 @@ export async function getTransactions(data) {
 
 // /api/transactions/search   ?search, category, type, startDate, endDate, page = 1
 export async function searchTransactions(data) {
+  console.log("getting this", data);
   const response = await axiosInstance.get("/api/transactions/search", {
     params: data,
   });

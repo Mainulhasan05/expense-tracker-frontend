@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 export default function RecentTransactions() {
   const { recentTransactions } = useSelector((state) => state.dashboard);
   const { activeMonth } = useSelector((state) => state.date);
-  const router = useRouter;
+
   const dispatch = useDispatch();
   useEffect(() => {
     if (activeMonth) {
@@ -32,7 +32,7 @@ export default function RecentTransactions() {
       <div className="flow-root">
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {recentTransactions.map((transaction) => (
-            <li key={transaction.id} className="py-3 sm:py-4">
+            <li key={transaction._id} className="py-3 sm:py-4">
               <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0">
                   <div
