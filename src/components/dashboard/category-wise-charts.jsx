@@ -35,6 +35,7 @@ const COLORS = [
 ];
 
 export default function CategoryWiseCharts() {
+  const { activeMonth } = useSelector((state) => state.date);
   const { categoryWiseData, topCategories, loading } = useSelector(
     (state) => state.dashboard
   );
@@ -44,9 +45,11 @@ export default function CategoryWiseCharts() {
 
   useEffect(() => {
     // Fetch category data for current month
-    dispatch(fetchCategoryWiseData());
-    dispatch(fetchTopCategories({ limit: 10 }));
-  }, [dispatch]);
+    if (activeMonth) {
+      dispatch(fetchCategoryWiseData({ activeMonth }));
+      dispatch(fetchTopCategories({ activeMonth, limit: 10 }));
+    }
+  }, [dispatch, activeMonth]);
 
   // Prepare data for expense pie chart
   const expensesPieData =

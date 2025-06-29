@@ -23,9 +23,9 @@ export async function getDashboardData(activeMonth) {
 }
 
 // Get category-wise data
-export async function getCategoryWiseData(activeMonth) {
-  const endpoint = activeMonth
-    ? `/api/dashboard/categories/${activeMonth}`
+export async function getCategoryWiseData(params) {
+  const endpoint = params.activeMonth
+    ? `/api/dashboard/categories/${params?.activeMonth}`
     : `/api/dashboard/categories`;
 
   const { data } = await axiosInstance.get(endpoint);
