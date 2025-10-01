@@ -17,10 +17,11 @@ export default function LoginCard() {
     const accessToken = credentialResponse.credential;
 
     await dispatch(loginWithGoogle({ idToken: accessToken }));
+    console.log("accessToken");
 
     // router.push("/dashboard");
     // refresh the page
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleGoogleFailure = (error) => {
