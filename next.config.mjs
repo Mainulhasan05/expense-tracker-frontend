@@ -3,7 +3,7 @@ const nextConfig = {
   env: {
     // API_URL: "http://localhost:8000",
     // API_URL: "https://finance-api.codesharer.xyz",
-    API_URL: "https://finance.mainulhasan99.xyz",
+    API_URL: "https://expense-tracker-backend-l4ls.onrender.com",
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   },
   images: {
