@@ -1,5 +1,7 @@
 import {
   googleLogin,
+  emailLogin,
+  emailRegister,
   getProfile,
   addTransaction,
   getCategories,
@@ -24,6 +26,28 @@ export const loginWithGoogle = createAsyncThunk(
   "auth/loginWithGoogle",
   async ({ idToken }) => {
     return await googleLogin({ idToken });
+  }
+);
+
+export const loginWithEmail = createAsyncThunk(
+  "auth/loginWithEmail",
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      return await emailLogin({ email, password });
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message || "Login failed");
+    }
+  }
+);
+
+export const registerWithEmail = createAsyncThunk(
+  "auth/registerWithEmail",
+  async ({ name, email, password }, { rejectWithValue }) => {
+    try {
+      return await emailRegister({ name, email, password });
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message || "Registration failed");
+    }
   }
 );
 
@@ -97,6 +121,30 @@ const authSlice = createSlice({
       .addCase(loginWithGoogle.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(loginWithEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginWithEmail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload?.user;
+      })
+      .addCase(loginWithEmail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(registerWithEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerWithEmail.fulfilled, (state, action) => {
+        state.loading = false;
+        // Don't set user on registration, they need to verify email first
+      })
+      .addCase(registerWithEmail.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
       })
       .addCase(fetchProfile.pending, (state) => {
         state.loading = true;

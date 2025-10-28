@@ -9,6 +9,7 @@ import {
   addNewCategory,
   deleteCategoryItem,
 } from "@/features/auth/authSlice";
+import ChangePasswordForm from "./change-password-form";
 
 export default function SettingsForm() {
   const { categories } = useSelector((state) => state.auth);
@@ -77,6 +78,9 @@ export default function SettingsForm() {
 
   return (
     <div className="space-y-6">
+      {/* Password Change Section */}
+      <ChangePasswordForm />
+
       {/* Appearance Section - unchanged */}
 
       <form onSubmit={saveSettings}>

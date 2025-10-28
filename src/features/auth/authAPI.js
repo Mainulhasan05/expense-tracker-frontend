@@ -12,6 +12,51 @@ export async function googleLogin({ idToken }) {
   return response.data;
 }
 
+// email/password register
+export async function emailRegister({ name, email, password }) {
+  const response = await axiosInstance.post("/api/auth/register", {
+    name,
+    email,
+    password,
+  });
+  return response.data;
+}
+
+// email/password login
+export async function emailLogin({ email, password }) {
+  const response = await axiosInstance.post("/api/auth/login", {
+    email,
+    password,
+  });
+  Cookies.set("finance-tracker-token", response.data.token, {
+    expires: 7,
+  });
+  return response.data;
+}
+
+// verify email
+export async function verifyEmail(token) {
+  const response = await axiosInstance.get(`/api/auth/verify-email/${token}`);
+  return response.data;
+}
+
+// resend verification email
+export async function resendVerification(email) {
+  const response = await axiosInstance.post("/api/auth/resend-verification", {
+    email,
+  });
+  return response.data;
+}
+
+// change password
+export async function changePassword({ currentPassword, newPassword }) {
+  const response = await axiosInstance.post("/api/auth/change-password", {
+    currentPassword,
+    newPassword,
+  });
+  return response.data;
+}
+
 // profile
 export async function getProfile() {
   const response = await axiosInstance.get("/api/auth/profile");
