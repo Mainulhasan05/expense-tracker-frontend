@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 import {
   Home,
   DollarSign,
@@ -10,6 +11,9 @@ import {
   Settings,
   Users,
   LogOut,
+  Shield,
+  BarChart3,
+  Music
 } from "lucide-react";
 
 export default function DashboardSidebar() {
@@ -47,25 +51,42 @@ export default function DashboardSidebar() {
   }, []);
 
   const isActive = (path) => {
+    // Handle admin routes specially
+    if (path === "/dashboard/admin") {
+      return pathname === path || pathname.startsWith("/dashboard/admin/");
+    }
     return pathname === path;
   };
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Transactions", href: "/dashboard/transactions", icon: DollarSign },
-    { name: "Tasks", href: "/dashboard/tasks", icon: CheckSquare },
-    { name: "Categories", href: "/dashboard/settings", icon: Settings },
-    // Admin only
-    // {
-    //   name: "User Management",
-    //   href: "/dashboard/users",
-    //   icon: Users,
-    //   admin: true,
-    // },
+    // { name: "Tasks", href: "/dashboard/tasks", icon: CheckSquare }, // Hidden for now
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    // Admin only items
+    {
+      name: "Admin Dashboard",
+      href: "/dashboard/admin",
+      icon: BarChart3,
+      admin: true,
+    },
+    {
+      name: "User Management",
+      href: "/dashboard/admin/users",
+      icon: Users,
+      admin: true,
+    },
+    {
+      name: "Voice AI Accounts",
+      href: "/dashboard/admin/assemblyai",
+      icon: Music,
+      admin: true,
+    },
   ];
 
-  // Static user role for demo
-  const userRole = "admin";
+  // Get user role from Redux store
+  const user = useSelector((state) => state.auth.user);
+  const userRole = user?.role || "user";
 
   const handleLogout = () => {
     // Implement logout logic here
