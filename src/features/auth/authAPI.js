@@ -57,6 +57,22 @@ export async function changePassword({ currentPassword, newPassword }) {
   return response.data;
 }
 
+// forgot password
+export async function forgotPassword(email) {
+  const response = await axiosInstance.post("/api/auth/forgot-password", {
+    email,
+  });
+  return response.data;
+}
+
+// reset password
+export async function resetPassword({ token, password }) {
+  const response = await axiosInstance.post(`/api/auth/reset-password/${token}`, {
+    password,
+  });
+  return response.data;
+}
+
 // profile
 export async function getProfile() {
   const response = await axiosInstance.get("/api/auth/profile");

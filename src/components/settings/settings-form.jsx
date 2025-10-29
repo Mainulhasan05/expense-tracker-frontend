@@ -10,6 +10,7 @@ import {
   deleteCategoryItem,
 } from "@/features/auth/authSlice";
 import ChangePasswordForm from "./change-password-form";
+import TelegramSettingsForm from "./telegram-settings-form";
 
 export default function SettingsForm() {
   const { categories } = useSelector((state) => state.auth);
@@ -80,6 +81,9 @@ export default function SettingsForm() {
     <div className="space-y-6">
       {/* Password Change Section */}
       <ChangePasswordForm />
+
+      {/* Telegram Integration Section */}
+      <TelegramSettingsForm />
 
       {/* Appearance Section - unchanged */}
 

@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { loginWithGoogle, loginWithEmail, registerWithEmail } from "@/features/auth/authSlice";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { resendVerification } from "@/features/auth/authAPI";
 
 export default function LoginCard() {
   const router = useRouter();
@@ -16,6 +18,8 @@ export default function LoginCard() {
   const [isLoading, setIsLoading] = useState(false);
   const [showMessage, setShowMessage] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   // Login form state
   const [loginForm, setLoginForm] = useState({
@@ -53,6 +57,7 @@ export default function LoginCard() {
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     setShowMessage(null);
+    setNeedsVerification(false);
     setIsLoading(true);
 
     try {
@@ -64,8 +69,40 @@ export default function LoginCard() {
     } catch (err) {
       console.error("Login error:", err);
       const errorMsg = err || err.message || "Login failed";
+
+      // Check if it's a verification error
+      if (errorMsg.toLowerCase().includes("verify your email")) {
+        setNeedsVerification(true);
+      }
+
       setShowMessage({ type: "error", text: errorMsg });
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!loginForm.email) {
+      setShowMessage({ type: "error", text: "Please enter your email address" });
+      return;
+    }
+
+    setIsResending(true);
+    setShowMessage(null);
+
+    try {
+      await resendVerification(loginForm.email);
+      setShowMessage({
+        type: "success",
+        text: "Verification email sent! Please check your inbox (and spam folder)."
+      });
+      setNeedsVerification(false);
+    } catch (error) {
+      setShowMessage({
+        type: "error",
+        text: error.response?.data?.message || "Failed to resend verification email"
+      });
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -177,7 +214,16 @@ export default function LoginCard() {
                 : "bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800"
             }`}
           >
-            {showMessage.text}
+            <p>{showMessage.text}</p>
+            {needsVerification && showMessage.type === "error" && (
+              <button
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="mt-3 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {isResending ? "Sending..." : "Resend Verification Email"}
+              </button>
+            )}
           </div>
         )}
 
@@ -218,6 +264,14 @@ export default function LoginCard() {
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
+            </div>
+            <div className="flex justify-end">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Forgot Password?
+              </Link>
             </div>
             <button
               type="submit"
