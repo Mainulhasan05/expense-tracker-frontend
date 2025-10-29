@@ -25,6 +25,7 @@ import {
 export default function AssemblyAIManagement() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -51,11 +52,13 @@ export default function AssemblyAIManagement() {
   const loadAccounts = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getAllAccounts();
       setAccounts(data.accounts || []);
     } catch (error) {
       console.error("Error loading accounts:", error);
-      alert("Failed to load AssemblyAI accounts");
+      setError(error.response?.data?.message || error.message || "Failed to load accounts");
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
@@ -207,12 +210,32 @@ export default function AssemblyAIManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">AssemblyAI Account Management</h1>
+    <div className="space-y-6 p-6">
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
+          <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-red-800">Error Loading Accounts</h3>
+            <p className="text-sm text-red-700 mt-1">{error}</p>
+          </div>
+          <button
+            onClick={() => {
+              setError(null);
+              loadAccounts();
+            }}
+            className="text-red-600 hover:text-red-800 text-sm font-medium"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-6 bg-gray-800 p-4 rounded-lg">
+        <h1 className="text-2xl font-bold text-white">AssemblyAI Account Management</h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          className="flex items-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
         >
           <Plus className="w-5 h-5" />
           <span>Add Account</span>
