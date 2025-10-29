@@ -13,7 +13,8 @@ import {
   LogOut,
   Shield,
   BarChart3,
-  Music
+  Music,
+  Brain
 } from "lucide-react";
 
 export default function DashboardSidebar() {
@@ -80,6 +81,12 @@ export default function DashboardSidebar() {
       name: "Voice AI Accounts",
       href: "/dashboard/admin/assemblyai",
       icon: Music,
+      admin: true,
+    },
+    {
+      name: "AI Parser Accounts",
+      href: "/dashboard/admin/clarifai",
+      icon: Brain,
       admin: true,
     },
   ];

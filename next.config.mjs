@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    // API_URL: "http://localhost:8000",
+    API_URL: "http://localhost:8000",
     // API_URL: "https://finance-api.codesharer.xyz",
-    API_URL: "https://expense-api.chapai.info",
+    // API_URL: "https://expense-api.chapai.info",
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
   },
   images: {
