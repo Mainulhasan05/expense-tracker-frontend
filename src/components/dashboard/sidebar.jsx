@@ -78,8 +78,8 @@ export default function DashboardSidebar() {
       admin: true,
     },
     {
-      name: "Voice AI Accounts",
-      href: "/dashboard/admin/assemblyai",
+      name: "Voice Services",
+      href: "/dashboard/admin/voice-services",
       icon: Music,
       admin: true,
     },
