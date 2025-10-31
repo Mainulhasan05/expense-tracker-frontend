@@ -5,7 +5,8 @@ import DashboardWidgets from "@/components/dashboard/widgets";
 import FinancialCharts from "@/components/dashboard/financial-charts";
 import RecentTransactions from "@/components/dashboard/recent-transactions";
 import CategoryWiseCharts from "@/components/dashboard/category-wise-charts";
-import { XCircle } from "lucide-react";
+import AddTransactionButton from "@/components/transactions/add-transaction-button";
+import { XCircle, TrendingUp } from "lucide-react";
 
 export default function Dashboard() {
   const [showAccessDenied, setShowAccessDenied] = useState(false);
@@ -28,7 +29,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-4">
       {showAccessDenied && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
           <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
@@ -47,12 +48,21 @@ export default function Dashboard() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Track your financial health</p>
+        </div>
+        <AddTransactionButton />
+      </div>
+
       <DashboardWidgets />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <FinancialCharts />
         <RecentTransactions />
       </div>
+
       <div className="grid grid-cols-1 gap-6">
         <CategoryWiseCharts />
       </div>

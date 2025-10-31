@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Calendar, ArrowDown, ArrowUp } from "lucide-react";
+import { Trash2, Calendar, ArrowDown, ArrowUp, Edit2 } from "lucide-react";
 import Pagination from "@/components/ui/pagination";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchTransactions,
   deleteTransactionItem,
+  updateTransaction,
 } from "@/features/auth/authSlice";
+import EditTransactionModal from "./edit-transaction-modal";
 
 export default function TransactionList() {
   const dispatch = useDispatch();
@@ -15,6 +17,7 @@ export default function TransactionList() {
   const { activeMonth } = useSelector((state) => state.date);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingTransaction, setEditingTransaction] = useState(null);
 
   useEffect(() => {
     if (activeMonth) {
@@ -100,12 +103,22 @@ export default function TransactionList() {
                       {formatCurrency(transaction.amount)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => handleDeleteTransaction(transaction._id)}
-                        className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setEditingTransaction(transaction)}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-all"
+                          title="Edit transaction"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTransaction(transaction._id)}
+                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all"
+                          title="Delete transaction"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -129,7 +142,7 @@ export default function TransactionList() {
                 className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-4"
               >
                 <div className="flex justify-between items-start mb-2">
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       {transaction.description}
                     </h3>
@@ -137,12 +150,22 @@ export default function TransactionList() {
                       {transaction.category}
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleDeleteTransaction(transaction._id)}
-                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setEditingTransaction(transaction)}
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                      title="Edit"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTransaction(transaction._id)}
+                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center mt-3">
@@ -196,6 +219,18 @@ export default function TransactionList() {
           currentPage={transactions?.currentPage || 1}
           totalPages={transactions?.totalPages || 1}
           onPageChange={setCurrentPage}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {editingTransaction && (
+        <EditTransactionModal
+          transaction={editingTransaction}
+          onClose={() => setEditingTransaction(null)}
+          onUpdate={(updatedData) => {
+            dispatch(updateTransaction({ id: editingTransaction._id, ...updatedData }));
+            setEditingTransaction(null);
+          }}
         />
       )}
     </div>

@@ -121,7 +121,13 @@ export async function searchTransactions(data) {
   return response.data;
 }
 
-// /api/transactions/:id
+// /api/transactions/:id (PUT - update)
+export async function updateTransaction(id, data) {
+  const response = await axiosInstance.put(`/api/transactions/${id}`, data);
+  return response.data;
+}
+
+// /api/transactions/:id (DELETE)
 export async function deleteTransaction(id) {
   const response = await axiosInstance.delete(`/api/transactions/${id}`);
   return response.data;

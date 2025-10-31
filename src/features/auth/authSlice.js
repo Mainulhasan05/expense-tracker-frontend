@@ -4,6 +4,7 @@ import {
   emailRegister,
   getProfile,
   addTransaction,
+  updateTransaction as updateTransactionAPI,
   getCategories,
   addCategory,
   getTransactions,
@@ -83,6 +84,13 @@ export const searchTransaction = createAsyncThunk(
   "auth/searchTransaction",
   async (data) => {
     return await searchTransactions(data);
+  }
+);
+
+export const updateTransaction = createAsyncThunk(
+  "auth/updateTransaction",
+  async ({ id, ...data }) => {
+    return await updateTransactionAPI(id, data);
   }
 );
 
@@ -203,6 +211,23 @@ const authSlice = createSlice({
         state.transactions = action.payload;
       })
       .addCase(fetchTransactions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(updateTransaction.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateTransaction.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedTransaction = action.payload?.transaction;
+        if (updatedTransaction) {
+          state.transactions.transactions = state.transactions?.transactions?.map(
+            (item) => item._id === updatedTransaction._id ? updatedTransaction : item
+          );
+        }
+      })
+      .addCase(updateTransaction.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
