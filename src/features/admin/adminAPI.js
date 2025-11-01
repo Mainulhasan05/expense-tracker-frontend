@@ -56,13 +56,13 @@ export async function getAllTelegramLogs({
   const response = await axiosInstance.get("/api/admin/telegram-logs", {
     params: { page, limit, userId, intent, messageType, success, startDate, endDate }
   });
-  return response.data;
+  return response.data.data; // Extract data from response
 }
 
 // Get Telegram activity statistics
 export async function getTelegramActivityStats() {
   const response = await axiosInstance.get("/api/admin/telegram-activity");
-  return response.data;
+  return response.data.data.statistics; // Extract statistics from response
 }
 
 // Get Telegram logs for a specific user
@@ -70,7 +70,7 @@ export async function getUserTelegramLogs(userId, { page = 1, limit = 20 } = {})
   const response = await axiosInstance.get(`/api/admin/telegram-logs/user/${userId}`, {
     params: { page, limit }
   });
-  return response.data;
+  return response.data.data; // Extract data from response
 }
 
 // Delete a specific Telegram log entry

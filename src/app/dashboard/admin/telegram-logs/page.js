@@ -57,10 +57,12 @@ function TelegramLogsContent() {
     try {
       setLoading(true);
       const data = await getAllTelegramLogs(filters);
-      setLogs(data.logs);
-      setPagination(data.pagination);
+      setLogs(data?.logs || []);
+      setPagination(data?.pagination || {});
     } catch (error) {
       console.error("Failed to fetch logs:", error);
+      setLogs([]);
+      setPagination({});
     } finally {
       setLoading(false);
     }
@@ -68,11 +70,12 @@ function TelegramLogsContent() {
 
   const fetchStats = async () => {
     try {
-      setStatsLoading(false);
+      setStatsLoading(true);
       const data = await getTelegramActivityStats();
-      setStats(data);
+      setStats(data || {});
     } catch (error) {
       console.error("Failed to fetch stats:", error);
+      setStats({});
     } finally {
       setStatsLoading(false);
     }
@@ -85,30 +88,42 @@ function TelegramLogsContent() {
   };
 
   const handleDeleteLog = async (logId) => {
+    if (!logId) {
+      alert("Invalid log ID");
+      return;
+    }
+
     if (!confirm("Are you sure you want to delete this log entry?")) {
       return;
     }
 
     try {
       await deleteTelegramLog(logId);
-      fetchLogs();
-      fetchStats();
+      await fetchLogs();
+      await fetchStats();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete log");
+      console.error("Delete log error:", error);
+      alert(error?.response?.data?.message || "Failed to delete log");
     }
   };
 
   const handleDeleteUserLogs = async (userId, userName) => {
-    if (!confirm(`Delete all Telegram logs for ${userName}? This action cannot be undone.`)) {
+    if (!userId) {
+      alert("Invalid user ID");
+      return;
+    }
+
+    if (!confirm(`Delete all Telegram logs for ${userName || "this user"}? This action cannot be undone.`)) {
       return;
     }
 
     try {
       await deleteUserTelegramLogs(userId);
-      fetchLogs();
-      fetchStats();
+      await fetchLogs();
+      await fetchStats();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to delete user logs");
+      console.error("Delete user logs error:", error);
+      alert(error?.response?.data?.message || "Failed to delete user logs");
     }
   };
 
@@ -173,13 +188,13 @@ function TelegramLogsContent() {
 
       {/* Statistics Cards */}
       {!statsLoading && stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Messages</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalMessages.toLocaleString()}
+                  {(stats?.totalMessages || 0).toLocaleString()}
                 </p>
               </div>
               <MessageSquare className="w-12 h-12 text-blue-600 opacity-20" />
@@ -189,9 +204,12 @@ function TelegramLogsContent() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.totalUsers.toLocaleString()}
+                  {(stats?.totalUsers || 0).toLocaleString()}
+                </p>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                  {(stats?.activeUsersToday || 0)} active today
                 </p>
               </div>
               <Users className="w-12 h-12 text-green-600 opacity-20" />
@@ -203,7 +221,7 @@ function TelegramLogsContent() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Success Rate</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.successRate.toFixed(1)}%
+                  {(stats?.successRate || 0).toFixed(1)}%
                 </p>
               </div>
               <TrendingUp className="w-12 h-12 text-purple-600 opacity-20" />
@@ -215,10 +233,33 @@ function TelegramLogsContent() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Last 7 Days</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.last7Days.toLocaleString()}
+                  {(stats?.last7Days || 0).toLocaleString()}
                 </p>
               </div>
               <Activity className="w-12 h-12 text-orange-600 opacity-20" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Last Active User Card */}
+      {!statsLoading && stats?.lastActiveUser && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Last Active User</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                {stats.lastActiveUser.name}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {stats.lastActiveUser.email}
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                Last activity: {new Date(stats.lastActiveUser.lastActivity).toLocaleString()}
+              </p>
+            </div>
+            <div className="bg-blue-100 dark:bg-blue-800 rounded-full p-4">
+              <Activity className="w-8 h-8 text-blue-600 dark:text-blue-300" />
             </div>
           </div>
         </div>
@@ -327,7 +368,7 @@ function TelegramLogsContent() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {logs.map((log) => (
+                  {logs && logs.length > 0 ? logs.map((log) => (
                     <tr key={log._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm">
@@ -341,47 +382,55 @@ function TelegramLogsContent() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
-                          {log.userMessage || "No message"}
+                          {log?.userMessage || "No message"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getIntentBadgeColor(log.intent)}`}>
-                          {log.intent}
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getIntentBadgeColor(log?.intent || "UNKNOWN")}`}>
+                          {log?.intent || "UNKNOWN"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm text-gray-900 dark:text-white capitalize">
-                          {log.messageType}
+                          {log?.messageType || "text"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getSuccessIcon(log.success)}
+                        {getSuccessIcon(log?.success ?? false)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {formatDate(log.createdAt)}
+                        {log?.createdAt ? formatDate(log.createdAt) : "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <button
-                          onClick={() => viewLogDetails(log)}
+                          onClick={() => log && viewLogDetails(log)}
                           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          disabled={!log}
                         >
                           View
                         </button>
                         <button
-                          onClick={() => handleDeleteLog(log._id)}
+                          onClick={() => log?._id && handleDeleteLog(log._id)}
                           className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          disabled={!log?._id}
                         >
                           <Trash2 className="w-4 h-4 inline" />
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                        No logs found
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            {pagination.pages > 1 && (
+            {pagination && pagination.pages > 1 && (
               <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex items-center justify-between">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   Showing {((pagination.page - 1) * pagination.limit) + 1} to{" "}
@@ -447,31 +496,31 @@ function TelegramLogsContent() {
               <div className="space-y-3">
                 <div>
                   <label className="text-sm font-medium text-gray-500 dark:text-gray-400">User</label>
-                  <p className="text-gray-900 dark:text-white">{selectedLog.user?.name} (@{selectedLog.telegramUsername})</p>
+                  <p className="text-gray-900 dark:text-white">{selectedLog?.user?.name || "Unknown"} (@{selectedLog?.telegramUsername || "N/A"})</p>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-500 dark:text-gray-400">User Message</label>
                   <p className="text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                    {selectedLog.userMessage}
+                    {selectedLog?.userMessage || "No message"}
                   </p>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Bot Response</label>
                   <p className="text-gray-900 dark:text-white bg-blue-50 dark:bg-blue-900/20 p-3 rounded">
-                    {selectedLog.botResponse}
+                    {selectedLog?.botResponse || "No response"}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Intent</label>
-                    <p className="text-gray-900 dark:text-white">{selectedLog.intent}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedLog?.intent || "N/A"}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Message Type</label>
-                    <p className="text-gray-900 dark:text-white capitalize">{selectedLog.messageType}</p>
+                    <p className="text-gray-900 dark:text-white capitalize">{selectedLog?.messageType || "N/A"}</p>
                   </div>
                 </div>
 
@@ -479,16 +528,16 @@ function TelegramLogsContent() {
                   <div>
                     <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</label>
                     <p className="text-gray-900 dark:text-white">
-                      {selectedLog.success ? "Success" : "Failed"}
+                      {selectedLog?.success ? "Success" : "Failed"}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Timestamp</label>
-                    <p className="text-gray-900 dark:text-white">{formatDate(selectedLog.createdAt)}</p>
+                    <p className="text-gray-900 dark:text-white">{selectedLog?.createdAt ? formatDate(selectedLog.createdAt) : "N/A"}</p>
                   </div>
                 </div>
 
-                {selectedLog.metadata && Object.keys(selectedLog.metadata).length > 0 && (
+                {selectedLog?.metadata && Object.keys(selectedLog.metadata).length > 0 && (
                   <div>
                     <label className="text-sm font-medium text-gray-500 dark:text-gray-400">Metadata</label>
                     <pre className="text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 p-3 rounded overflow-x-auto">
@@ -507,8 +556,10 @@ function TelegramLogsContent() {
                 </button>
                 <button
                   onClick={() => {
-                    handleDeleteLog(selectedLog._id);
-                    setShowDetailsModal(false);
+                    if (selectedLog?._id) {
+                      handleDeleteLog(selectedLog._id);
+                      setShowDetailsModal(false);
+                    }
                   }}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >

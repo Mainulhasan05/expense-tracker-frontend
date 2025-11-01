@@ -234,6 +234,9 @@ export default function UserManagement() {
                       Telegram
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Last Active
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Joined
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -320,6 +323,20 @@ export default function UserManagement() {
                           </div>
                         ) : (
                           <span className="text-xs text-gray-400">Not linked</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {user.lastTelegramActivity ? (
+                          <div className="flex flex-col">
+                            <span className="text-xs">
+                              {new Date(user.lastTelegramActivity).toLocaleDateString()}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {new Date(user.lastTelegramActivity).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">Never</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
