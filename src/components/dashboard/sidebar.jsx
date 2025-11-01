@@ -14,7 +14,8 @@ import {
   Shield,
   BarChart3,
   Music,
-  Brain
+  Brain,
+  MessageSquare
 } from "lucide-react";
 
 export default function DashboardSidebar() {
@@ -75,6 +76,12 @@ export default function DashboardSidebar() {
       name: "User Management",
       href: "/dashboard/admin/users",
       icon: Users,
+      admin: true,
+    },
+    {
+      name: "Telegram Logs",
+      href: "/dashboard/admin/telegram-logs",
+      icon: MessageSquare,
       admin: true,
     },
     {

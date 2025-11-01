@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAllUsers, updateUser, deleteUser } from "@/features/admin/adminAPI";
+import {
+  getAllUsers,
+  updateUser,
+  deleteUser,
+  restrictTelegramAccess,
+  unrestrictTelegramAccess,
+  getUserTelegramLogs
+} from "@/features/admin/adminAPI";
 import {
   Users,
   Search,
@@ -12,7 +19,11 @@ import {
   Shield,
   Mail,
   Calendar,
-  Filter
+  Filter,
+  MessageSquare,
+  Ban,
+  Unlock,
+  Eye
 } from "lucide-react";
 import Link from "next/link";
 
@@ -29,6 +40,9 @@ export default function UserManagement() {
   });
   const [editingUser, setEditingUser] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [restrictingUser, setRestrictingUser] = useState(null);
+  const [showRestrictModal, setShowRestrictModal] = useState(false);
+  const [restrictionReason, setRestrictionReason] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -90,6 +104,43 @@ export default function UserManagement() {
       fetchUsers();
     } catch (error) {
       alert(error.response?.data?.message || "Failed to update user");
+    }
+  };
+
+  const handleRestrictTelegram = (user) => {
+    setRestrictingUser(user);
+    setRestrictionReason("");
+    setShowRestrictModal(true);
+  };
+
+  const handleConfirmRestrict = async (e) => {
+    e.preventDefault();
+    if (!restrictionReason.trim()) {
+      alert("Please provide a reason for restriction");
+      return;
+    }
+
+    try {
+      await restrictTelegramAccess(restrictingUser._id, restrictionReason);
+      setShowRestrictModal(false);
+      setRestrictingUser(null);
+      setRestrictionReason("");
+      fetchUsers();
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to restrict user");
+    }
+  };
+
+  const handleUnrestrictTelegram = async (user) => {
+    if (!confirm(`Remove Telegram restriction for ${user.name}?`)) {
+      return;
+    }
+
+    try {
+      await unrestrictTelegramAccess(user._id);
+      fetchUsers();
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to unrestrict user");
     }
   };
 
@@ -180,6 +231,9 @@ export default function UserManagement() {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      Telegram
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Joined
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -246,6 +300,28 @@ export default function UserManagement() {
                           </span>
                         )}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {user.telegramId ? (
+                          <div className="flex flex-col space-y-1">
+                            {user.telegramRestricted ? (
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
+                                <Ban className="w-3 h-3 mr-1" />
+                                Restricted
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                                <MessageSquare className="w-3 h-3 mr-1" />
+                                Linked
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {user.telegramMessageCount || 0} msgs
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">Not linked</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
@@ -253,20 +329,52 @@ export default function UserManagement() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        {user.role !== "admin" && (
+                        <div className="flex items-center justify-end space-x-2">
                           <button
-                            onClick={() => handleDelete(user._id, user.name)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            onClick={() => handleEdit(user)}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                            title="Edit user"
                           >
-                            <Trash2 className="w-5 h-5" />
+                            <Edit className="w-5 h-5" />
                           </button>
-                        )}
+                          {user.telegramId && (
+                            <>
+                              <Link
+                                href={`/dashboard/admin/telegram-logs?userId=${user._id}`}
+                                className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
+                                title="View Telegram logs"
+                              >
+                                <Eye className="w-5 h-5" />
+                              </Link>
+                              {user.telegramRestricted ? (
+                                <button
+                                  onClick={() => handleUnrestrictTelegram(user)}
+                                  className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                                  title="Unrestrict Telegram access"
+                                >
+                                  <Unlock className="w-5 h-5" />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleRestrictTelegram(user)}
+                                  className="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300"
+                                  title="Restrict Telegram access"
+                                >
+                                  <Ban className="w-5 h-5" />
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {user.role !== "admin" && (
+                            <button
+                              onClick={() => handleDelete(user._id, user.name)}
+                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                              title="Delete user"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -373,6 +481,54 @@ export default function UserManagement() {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Restrict Telegram Modal */}
+      {showRestrictModal && restrictingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4 flex items-center text-red-600">
+              <Ban className="w-6 h-6 mr-2" />
+              Restrict Telegram Access
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              You are about to restrict Telegram access for <strong>{restrictingUser.name}</strong>.
+              Please provide a reason for this action.
+            </p>
+            <form onSubmit={handleConfirmRestrict} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Reason for Restriction</label>
+                <textarea
+                  value={restrictionReason}
+                  onChange={(e) => setRestrictionReason(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-600 dark:bg-gray-700 dark:text-white"
+                  rows="4"
+                  placeholder="E.g., Abuse of bot features, spam, inappropriate content..."
+                  required
+                />
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  Confirm Restriction
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRestrictModal(false);
+                    setRestrictingUser(null);
+                    setRestrictionReason("");
+                  }}
                   className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
                 >
                   Cancel
